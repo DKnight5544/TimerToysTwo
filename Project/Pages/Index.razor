@@ -1,7 +1,96 @@
 ﻿@page "/"
+@page "/{id}"
 
-<h1>Hello, world!</h1>
+@using TimerToysTwo.Model
+@using TimerToysTwo.Components
+@using System.Collections.Generic
+@inject HttpClient Http
+@inject NavigationManager NavManager
 
-<p>
-    Welcome to your new app.
-</p>
+
+@{
+
+
+    if (MyTimer == null)
+    {
+        <h4><em>Still Loading . . .</em></h4>
+    }
+    else
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            NavManager.NavigateTo(string.Format("/{0}", MyTimer.TimerKey), forceLoad: true);
+        }
+
+        if (ticker == null)
+        {
+            // don't create more than one time.
+            // adding a new page seems to do that. If you are not
+            // carefull you can have several tickers active.
+            ticker = new System.Threading.Timer(Tick, null, 1000, 1000);
+        }
+
+        <div class="banner">
+            @MyTimer.TimerName
+        </div>
+
+        <div class="treeview">
+            @{
+                foreach (Timer child in MyChildren.OrderBy(c => c.CreationTime))
+                {
+                    <Node MyTimer="@child"></Node>
+                }
+            }
+        </div>
+
+        <div class="display-window">
+            <div style="padding-top:20px; clear:both;">
+                <a href="https://paypal.me/wigiwiz/" target="_blank" class="donate">PLEASE DONATE</a>
+            </div>
+        </div>
+
+
+
+
+
+    }
+
+}
+
+
+@code {
+
+    [Parameter]
+    public string id { get; set; }
+
+    private Timer MyTimer;
+    private Timer[] MyChildren;
+
+    private System.Threading.Timer ticker;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        id = "1C84EAD3-0829-474C-9E2A-61930460C371";
+
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            MyTimer = await Http.GetFromJsonAsync<Timer>("AddRootTimer");
+        }
+        else
+        {
+            MyTimer = await Http.GetFromJsonAsync<Timer>(string.Format("GetTimer/{0}", id));
+            MyChildren = await Http.GetFromJsonAsync<Timer[]>(string.Format("GetChildren/{0}", MyTimer.TimerKey));
+        }
+
+    }
+
+    private void Tick(Object stateInfo)
+    {
+        //foreach (TimerToyComponent t in tta)
+        //{
+        //    if (t.IsTimerSet) t.Tick();
+        //}
+    }
+}

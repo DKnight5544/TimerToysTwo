@@ -1,5 +1,67 @@
-﻿h1{
-    font-family:sans-serif;
-    font-size: 25px;
-    font-weight:bold;
+﻿
+
+html, body {
+    font-family: monospace;
+    position: relative;
+    padding: 0px;
+    margin:0px;
+    height:100%;
 }
+
+
+.banner {
+    background-color: maroon;
+    color: white;
+    font-size:28px;
+    border:none;
+    padding:10px;
+}
+
+.treeview {
+    position:fixed;
+    padding-top:65px;
+    padding-left:10px;
+    top:0px;
+    left:0px;
+    bottom:0px;
+    width: 450px;
+    height: 100%;
+    color: maroon;
+    border-right: 2px solid maroon;
+    float:left;
+}
+
+.display-window {
+    position: fixed;
+    padding-top: 65px;
+    padding-left: 10px;
+    top: 0px;
+    left: 450px;
+    bottom: 0px;
+}
+
+.my-timer {
+    margin-top: 10px;
+    margin-left: 15px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.donate {
+    background-color: white;
+    color: maroon;
+    border: solid 2px maroon;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    width: 75px;
+    text-align: center;
+    display:block;
+    clear: both;
+    margin-left: 10px;
+    text-decoration:none;
+}
+
+

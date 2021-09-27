@@ -1,0 +1,49 @@
+﻿
+@using TimerToysTwo.Model
+@using System.Collections.Generic
+@inject HttpClient Http
+
+<div class="my-timer" @onclick="Expand">
+
+    @MyTimer.TimerName
+
+    @{
+
+        if (MyChildren == null)
+        {
+            if (IsExpanded)
+            {
+                <em>Loading...</em>
+            }
+        }
+        else
+        {
+            foreach (Timer child in MyChildren.OrderBy(c => c.CreationTime))
+            {
+                <Node MyTimer="@child"></Node>
+            }
+        }
+    }
+
+</div>
+
+@code {
+
+    [Parameter]
+    public Timer MyTimer { get; set; }
+
+    private Timer[] MyChildren { get; set; }
+
+    private bool IsExpanded { get; set; }
+
+    private async Task Expand()
+    {
+        if (MyTimer.ChildCount > 0)
+        {
+            IsExpanded = true;
+            MyChildren = await Http.GetFromJsonAsync<Timer[]>(string.Format("GetChildren/{0}", MyTimer.TimerKey));
+            StateHasChanged();
+        }
+    }
+
+}
