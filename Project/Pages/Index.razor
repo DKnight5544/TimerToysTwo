@@ -8,6 +8,7 @@
 @inject NavigationManager NavManager
 
 
+
 @{
 
 
@@ -17,33 +18,17 @@
     }
     else
     {
-        if (string.IsNullOrWhiteSpace(id))
-        {
-            NavManager.NavigateTo(string.Format("/{0}", MyTimer.TimerKey), forceLoad: true);
-        }
-
-        if (ticker == null)
-        {
-            // don't create more than one time.
-            // adding a new page seems to do that. If you are not
-            // carefull you can have several tickers active.
-            ticker = new System.Threading.Timer(Tick, null, 1000, 1000);
-        }
 
         <div class="banner">
             @MyTimer.TimerName
         </div>
 
         <div class="treeview">
-            @{
-                foreach (Timer child in MyChildren.OrderBy(c => c.CreationTime))
-                {
-                    <Node MyTimer="@child"></Node>
-                }
-            }
+                <Node @ref="MyNode" MyTimer="@MyTimer"></Node>
         </div>
 
         <div class="display-window">
+            <SelectedNode @ref="SelectedNode" OnNameChange="OnNameChange"></SelectedNode>
             <div style="padding-top:20px; clear:both;">
                 <a href="https://paypal.me/wigiwiz/" target="_blank" class="donate">PLEASE DONATE</a>
             </div>
@@ -51,6 +36,8 @@
 
 
 
+
+        if (ticker == null) ticker = new System.Threading.Timer(Tick, null, 1000, 1000);
 
 
     }
@@ -64,9 +51,12 @@
     public string id { get; set; }
 
     private Timer MyTimer;
-    private Timer[] MyChildren;
+
+    private Node MyNode;
+    private SelectedNode SelectedNode;
 
     private System.Threading.Timer ticker;
+
 
 
     protected override async Task OnInitializedAsync()
@@ -77,20 +67,26 @@
         if (string.IsNullOrWhiteSpace(id))
         {
             MyTimer = await Http.GetFromJsonAsync<Timer>("AddRootTimer");
+            NavManager.NavigateTo(string.Format("/{0}", MyTimer.TimerKey), forceLoad: true);
         }
         else
         {
             MyTimer = await Http.GetFromJsonAsync<Timer>(string.Format("GetTimer/{0}", id));
-            MyChildren = await Http.GetFromJsonAsync<Timer[]>(string.Format("GetChildren/{0}", MyTimer.TimerKey));
+            Global.SelectedTimer = MyTimer;
         }
 
     }
 
     private void Tick(Object stateInfo)
     {
-        //foreach (TimerToyComponent t in tta)
-        //{
-        //    if (t.IsTimerSet) t.Tick();
-        //}
+        MyNode.Tick();
+        SelectedNode.Tick();
     }
+
+    private async Task OnNameChange()
+        {
+            // here we will have to find 
+            // the treenode that needs to be updated
+            // and fire it's StateHasChanged Method.
+        }
 }

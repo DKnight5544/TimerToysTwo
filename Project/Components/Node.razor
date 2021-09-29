@@ -3,27 +3,26 @@
 @using System.Collections.Generic
 @inject HttpClient Http
 
-<div class="my-timer" @onclick="Expand">
+<div class="my-timer" @onclick="ToggleExpand">
 
     @MyTimer.TimerName
+    @ElapsedTimeString
 
-    @{
+    <div style="margin-left:15px;">
+        @{
 
-        if (MyChildren == null)
-        {
-            if (IsExpanded)
+            if (MyChildTimers == null)
             {
-                <em>Loading...</em>
+            }
+            else
+            {
+                foreach (Timer child in MyChildTimers.OrderBy(c => c.CreationTime))
+                {
+                    <Node @ref="MyChildNodes[child.TimerKey]" MyTimer="@child"></Node>
+                }
             }
         }
-        else
-        {
-            foreach (Timer child in MyChildren.OrderBy(c => c.CreationTime))
-            {
-                <Node MyTimer="@child"></Node>
-            }
-        }
-    }
+    </div>
 
 </div>
 
@@ -32,18 +31,75 @@
     [Parameter]
     public Timer MyTimer { get; set; }
 
-    private Timer[] MyChildren { get; set; }
-
     private bool IsExpanded { get; set; }
 
-    private async Task Expand()
+    private Timer[] MyChildTimers;
+
+    private Dictionary<string, Node> MyChildNodes = new Dictionary<string, Node>();
+
+    public string ElapsedTimeString
     {
+        get
+        {
+            //int et = GetElapsedTime();
+            return Global.StringifyTime(MyTimer.ElapsedTime);
+        }
+    }
+
+    private void ToggleExpand()
+    {
+        IsExpanded = !IsExpanded;
+    }
+
+
+
+    //public int GetElapsedTime()
+    //{
+    //    if (MyChildTimers != null)
+    //    {
+    //        MyTimer.ElapsedTime = 0;
+    //        foreach (Timer child in MyChildTimers)
+    //        {
+    //            bool nodeExists = MyChildNodes.Keys.Contains(child.TimerKey);
+    //            if (nodeExists) MyTimer.ElapsedTime += MyChildNodes[child.TimerKey].GetElapsedTime();
+    //        }
+    //    }
+
+    //    return MyTimer.ElapsedTime;
+    //}
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsExpanded = true;
         if (MyTimer.ChildCount > 0)
         {
-            IsExpanded = true;
-            MyChildren = await Http.GetFromJsonAsync<Timer[]>(string.Format("GetChildren/{0}", MyTimer.TimerKey));
+            MyChildTimers = await Http.GetFromJsonAsync<Timer[]>(string.Format("GetChildren/{0}", MyTimer.TimerKey));
             StateHasChanged();
         }
     }
+
+    public int Tick()
+    {
+        int saveTime = MyTimer.ElapsedTime;
+
+        if (MyTimer.IsRunning) MyTimer.ElapsedTime++;
+
+        if (MyChildTimers != null)
+        {
+            MyTimer.ElapsedTime = 0;
+            foreach (Timer child in MyChildTimers.OrderBy(c => c.CreationTime))
+            {
+                bool nodeExists = MyChildNodes.Keys.Contains(child.TimerKey);
+                if (nodeExists) MyTimer.ElapsedTime += MyChildNodes[child.TimerKey].Tick();
+            }
+        }
+
+        if (MyTimer.ElapsedTime != saveTime) StateHasChanged();
+
+        return MyTimer.ElapsedTime;
+
+    }
+
+
 
 }
