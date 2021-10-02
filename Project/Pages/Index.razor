@@ -24,7 +24,7 @@
         </div>
 
         <div class="treeview">
-                <Node @ref="MyNode" MyTimer="@MyTimer"></Node>
+            <Node @ref="MyNode" MyTimer="@MyTimer"></Node>
         </div>
 
         <div class="display-window">
@@ -84,9 +84,15 @@
     }
 
     private async Task OnNameChange()
-        {
-            // here we will have to find 
-            // the treenode that needs to be updated
-            // and fire it's StateHasChanged Method.
-        }
+    {
+        // here we will have to find
+        // the treenode that needs to be updated
+        // and fire it's StateHasChanged Method.
+    }
+
+    private void OnSelect(Timer selectedTimer)
+    {
+        Global.SelectedTimer = selectedTimer;
+        SelectedNode.UpdateDisplay();
+    }
 }

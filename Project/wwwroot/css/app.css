@@ -44,7 +44,6 @@ html, body {
     margin-top: 10px;
     margin-left: 15px;
     font-size:16px;
-    cursor:pointer;
 }
 
 .donate {
@@ -63,5 +62,52 @@ html, body {
     margin-left: 10px;
     text-decoration:none;
 }
+
+/*----------------------------------------------------------------------------------------------*
+    NODE SECTION
+------------------------------------------------------------------------------------------------*/
+
+.node-table {
+    border: none;
+    border-collapse: collapse;
+    cursor: default;
+}
+
+.node-expand-td {
+}
+
+.node-expand-button{
+    border:1px solid maroon;
+}
+
+.node-name-td {
+    padding-left: 5px;
+    cursor: pointer;
+}
+.node-name-td:hover {
+    font-weight:bold;
+}
+
+.node-name-span {
+}
+
+.node-elapsed-td {
+    padding-left: 10px;
+}
+
+.node-elapsed-span {
+}
+
+.hot {
+    background-color: maroon;
+    color: white;
+    cursor:pointer;
+}
+
+.not {
+    color: maroon;
+    background-color: white;
+}
+
 
 

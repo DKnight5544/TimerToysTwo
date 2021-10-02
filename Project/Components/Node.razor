@@ -1,12 +1,26 @@
 ﻿
 @using TimerToysTwo.Model
-@using System.Collections.Generic
-@inject HttpClient Http
 
 <div class="my-timer" @onclick="ToggleExpand">
 
-    @MyTimer.TimerName
-    @ElapsedTimeString
+
+    <table class="node-table">
+        <tr>
+            <td class="node-expand-td">
+                <button class="node-expand-button @HotOrNotClass">@MyTimer.ChildCount</button>
+            </td>
+            <td class="node-name-td">
+                <span class="node-name-span" @onclick="OnSelect">
+                    @MyTimer.TimerName
+                </span>
+            </td>
+            <td class="node-elapsed-td">
+                <span class="node-elapsed-span">
+                    (@ElapsedTimeString)
+                </span>
+            </td>
+        </tr>
+    </table>
 
     <div style="margin-left:15px;">
         @{
@@ -27,79 +41,4 @@
 </div>
 
 @code {
-
-    [Parameter]
-    public Timer MyTimer { get; set; }
-
-    private bool IsExpanded { get; set; }
-
-    private Timer[] MyChildTimers;
-
-    private Dictionary<string, Node> MyChildNodes = new Dictionary<string, Node>();
-
-    public string ElapsedTimeString
-    {
-        get
-        {
-            //int et = GetElapsedTime();
-            return Global.StringifyTime(MyTimer.ElapsedTime);
-        }
-    }
-
-    private void ToggleExpand()
-    {
-        IsExpanded = !IsExpanded;
-    }
-
-
-
-    //public int GetElapsedTime()
-    //{
-    //    if (MyChildTimers != null)
-    //    {
-    //        MyTimer.ElapsedTime = 0;
-    //        foreach (Timer child in MyChildTimers)
-    //        {
-    //            bool nodeExists = MyChildNodes.Keys.Contains(child.TimerKey);
-    //            if (nodeExists) MyTimer.ElapsedTime += MyChildNodes[child.TimerKey].GetElapsedTime();
-    //        }
-    //    }
-
-    //    return MyTimer.ElapsedTime;
-    //}
-
-    protected override async Task OnInitializedAsync()
-    {
-        IsExpanded = true;
-        if (MyTimer.ChildCount > 0)
-        {
-            MyChildTimers = await Http.GetFromJsonAsync<Timer[]>(string.Format("GetChildren/{0}", MyTimer.TimerKey));
-            StateHasChanged();
-        }
-    }
-
-    public int Tick()
-    {
-        int saveTime = MyTimer.ElapsedTime;
-
-        if (MyTimer.IsRunning) MyTimer.ElapsedTime++;
-
-        if (MyChildTimers != null)
-        {
-            MyTimer.ElapsedTime = 0;
-            foreach (Timer child in MyChildTimers.OrderBy(c => c.CreationTime))
-            {
-                bool nodeExists = MyChildNodes.Keys.Contains(child.TimerKey);
-                if (nodeExists) MyTimer.ElapsedTime += MyChildNodes[child.TimerKey].Tick();
-            }
-        }
-
-        if (MyTimer.ElapsedTime != saveTime) StateHasChanged();
-
-        return MyTimer.ElapsedTime;
-
-    }
-
-
-
 }
