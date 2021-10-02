@@ -31,6 +31,13 @@ namespace TimerToysTwo.Components
             }
         }
 
+        public string IsExpandedStyle {
+            get
+            {
+                return (IsExpanded) ? "block" : "none";
+            }
+        }
+
         private bool IsExpanded { get; set; }
 
         private Timer[] MyChildTimers;
@@ -83,11 +90,15 @@ namespace TimerToysTwo.Components
 
         }
 
-
         private void OnSelect()
         {
             Global.SelectedTimer = MyTimer;
             OnSelectHandler.InvokeAsync();
+        }
+
+        private void Node_onClick()
+        {
+            IsExpanded = !IsExpanded;
         }
 
 

@@ -19,23 +19,22 @@
     else
     {
 
-        <div class="banner">
-            @MyTimer.TimerName
-        </div>
+        @*<div class="banner">Timer Toys</div>*@
 
-        <div class="treeview">
-            <Node @ref="MyNode" MyTimer="@MyTimer"></Node>
-        </div>
-
-        <div class="display-window">
-            <SelectedNode @ref="SelectedNode" OnNameChange="OnNameChange"></SelectedNode>
-            <div style="padding-top:20px; clear:both;">
-                <a href="https://paypal.me/wigiwiz/" target="_blank" class="donate">PLEASE DONATE</a>
-            </div>
-        </div>
-
-
-
+        <table class="main-table">
+            <tr class="main-table-tr1">
+                <td class="main-table-tr1-td1" colspan="2">Timer Toys</td>
+            </tr>
+            <tr class="main-table-tr2">
+                <td class="main-table-left">
+                    <Node @ref="MyNode" MyTimer="@MyTimer"></Node>
+                </td>
+                <td class="main-table-right">
+                    <SelectedNode @ref="SelectedNode" OnNameChange="OnNameChange"></SelectedNode>
+                    <a href="https://paypal.me/wigiwiz/" target="_blank" class="donate">PLEASE DONATE</a>
+                </td>
+            </tr>
+        </table>    
 
         if (ticker == null) ticker = new System.Threading.Timer(Tick, null, 1000, 1000);
 

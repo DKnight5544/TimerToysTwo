@@ -1,28 +1,26 @@
 ﻿
 @using TimerToysTwo.Model
 
-<div class="my-timer" @onclick="ToggleExpand">
+<div class="my-timer">
 
 
     <table class="node-table">
         <tr>
             <td class="node-expand-td">
-                <button class="node-expand-button @HotOrNotClass">@MyTimer.ChildCount</button>
+                <button class="node-expand-button @HotOrNotClass" @onclick="ToggleExpand">@MyTimer.ChildCount</button>
             </td>
-            <td class="node-name-td">
-                <span class="node-name-span" @onclick="OnSelect">
-                    @MyTimer.TimerName
-                </span>
-            </td>
-            <td class="node-elapsed-td">
+            <td class="node-text-td" @onclick="OnSelect">
                 <span class="node-elapsed-span">
                     (@ElapsedTimeString)
+                </span>
+                <span class="node-name-span">
+                    @MyTimer.TimerName
                 </span>
             </td>
         </tr>
     </table>
 
-    <div style="margin-left:15px;">
+    <div style="margin-left:15px; display: @IsExpandedStyle;">
         @{
 
             if (MyChildTimers == null)
