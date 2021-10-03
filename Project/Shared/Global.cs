@@ -28,7 +28,7 @@ namespace TimerToysTwo.Shared
 
             if (hrs > 0) result = string.Format("{0:00}:{1:00}:{2:00}", Math.Abs(hrs), Math.Abs(min), Math.Abs(sec));
             else if (min > 0) result = string.Format("{0:00}:{1:00}", Math.Abs(min), Math.Abs(sec));
-            else result = string.Format("{0}", Math.Abs(sec));
+            else result = string.Format("{0:00}", Math.Abs(sec));
 
             return result;
 

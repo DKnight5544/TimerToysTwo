@@ -34,6 +34,37 @@ namespace TimerToysTwo.Components
             }
         }
 
+        private string SelectedElapsedHours
+        {
+            get
+            {
+                var timeArr = SelectedElapsedTime.Split(":");
+                if (timeArr.Length == 3) return timeArr[0].Trim();
+                else return "00";
+            }
+        }
+        private string SelectedElapsedMinutes
+        {
+            get
+            {
+                var timeArr = SelectedElapsedTime.Split(":");
+                if (timeArr.Length == 3) return timeArr[1].Trim();
+                else if (timeArr.Length == 2) return timeArr[0].Trim();
+                else return "00";
+            }
+        }
+        private string SelectedElapsedSeconds
+        {
+            get
+            {
+                var timeArr = SelectedElapsedTime.Split(":");
+                if (timeArr.Length == 3) return timeArr[2].Trim();
+                else if (timeArr.Length == 2) return timeArr[1].Trim();
+                else if (timeArr.Length == 1) return timeArr[0].Trim();
+                else return "00";
+            }
+        }
+
         private string SavedTime = "";
 
         public void Tick()

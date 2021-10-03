@@ -1,8 +1,29 @@
 ﻿
-<h1>@SelectedTimerName</h1>
-<h2>@SelectedElapsedTime</h2>
+<input class="timer-name-input" value="@SelectedTimerName" />
 
-<button @onclick="ToggleTimer" disabled="@(Global.SelectedTimer.ChildCount > 0)">Toggle Timer</button>
-<button @onclick="UpdateName">UpdateName</button>
+<table class="timer-control">
+    <tr>
+        <td class="timer-control-adjust">HOURS +</td>
+        <td class="timer-control-adjust">MINUTES +</td>
+        <td class="timer-control-adjust">SECONDS +</td>
+    </tr>
+    <tr>
+        <td class="timer-control-number">@SelectedElapsedHours</td>
+        <td class="timer-control-number">@SelectedElapsedMinutes</td>
+        <td class="timer-control-number">@SelectedElapsedSeconds</td>
+    </tr>
+    <tr>
+        <td class="timer-control-adjust">HOURS -</td>
+        <td class="timer-control-adjust">MINUTES -</td>
+        <td class="timer-control-adjust">SECONDS -</td>
+    </tr>
+
+</table>
+
+<h2></h2>
+
+<button @onclick="ToggleTimer" disabled="@(Global.SelectedTimer.ChildCount > 0)" class="control-button">Toggle Timer</button>
+<button @onclick="UpdateName" class="control-button">Update Name</button>
 
 
+<a href="https://paypal.me/wigiwiz/" target="_blank" class="donate">PLEASE DONATE</a>
