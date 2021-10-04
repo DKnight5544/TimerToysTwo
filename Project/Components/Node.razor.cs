@@ -17,8 +17,13 @@ namespace TimerToysTwo.Components
         [Microsoft.AspNetCore.Components.Inject]
         HttpClient Http { get; set; }
 
+        private Timer _myTimer;
+
         [Microsoft.AspNetCore.Components.Parameter]
-        public Timer MyTimer { get; set; }
+        public Timer MyTimer {
+            get { return _myTimer; }
+            set { _myTimer = value; }
+        }
 
         private string ExpandButtonClass
         {
@@ -127,14 +132,15 @@ namespace TimerToysTwo.Components
                 ElapsedTime = 0;
                 foreach (Timer child in MyChildTimers)
                 {
-                    bool nodeExists = MyChildNodes.Keys.Contains(child.TimerKey);
-                    if (nodeExists) ElapsedTime += MyChildNodes[child.TimerKey].Tick();
+                    ElapsedTime += MyChildNodes[child.TimerKey].Tick();
                 }
             }
 
             if (ElapsedTime != saveTime) StateHasChanged();
 
             return ElapsedTime;
+
+            //return 0;
 
         }
 
