@@ -11,33 +11,16 @@
 
 @{
 
+    <div class="banner">Timer Toys</div>
 
     if (MyTimer == null)
     {
-        <h4><em>Still Loading . . .</em></h4>
+        <div class="loading-message">Loading Timers . . .</div>
     }
     else
     {
-
-        @*<div class="banner">Timer Toys</div>*@
-
-        <table class="main-table">
-            <tr class="main-table-tr1">
-                <td class="main-table-tr1-td1" colspan="2">Timer Toys</td>
-            </tr>
-            <tr class="main-table-tr2">
-                <td class="main-table-left">
-                    <Node @ref="MyNode" MyTimer="@MyTimer"></Node>
-                </td>
-                <td class="main-table-right">
-                    <SelectedNode @ref="SelectedNode" OnNameChange="OnNameChange"></SelectedNode>
-                </td>
-            </tr>
-        </table>    
-
+        <Node @ref="MyNode" MyTimer="@MyTimer"></Node>
         if (ticker == null) ticker = new System.Threading.Timer(Tick, null, 1000, 1000);
-
-
     }
 
 }
@@ -51,7 +34,6 @@
     private Timer MyTimer;
 
     private Node MyNode;
-    private SelectedNode SelectedNode;
 
     private System.Threading.Timer ticker;
 
@@ -70,7 +52,6 @@
         else
         {
             MyTimer = await Http.GetFromJsonAsync<Timer>(string.Format("GetTimer/{0}", id));
-            Global.SelectedTimer = MyTimer;
         }
 
     }
@@ -78,19 +59,5 @@
     private void Tick(Object stateInfo)
     {
         MyNode.Tick();
-        SelectedNode.Tick();
-    }
-
-    private async Task OnNameChange()
-    {
-        // here we will have to find
-        // the treenode that needs to be updated
-        // and fire it's StateHasChanged Method.
-    }
-
-    private void OnSelect(Timer selectedTimer)
-    {
-        Global.SelectedTimer = selectedTimer;
-        SelectedNode.UpdateDisplay();
     }
 }

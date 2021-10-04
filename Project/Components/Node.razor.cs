@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Net.Http; // for HttpClient
 using System.Net.Http.Json; // for HttpClientJsonExtensions
-using System.Threading.Tasks;
 using TimerToysTwo.Model;
 using TimerToysTwo.Shared;
 
@@ -20,38 +20,83 @@ namespace TimerToysTwo.Components
         [Microsoft.AspNetCore.Components.Parameter]
         public Timer MyTimer { get; set; }
 
-        [Microsoft.AspNetCore.Components.Parameter]
-        public EventCallback OnSelectHandler { get; set; }
-
-        public string HotOrNotClass
+        private string ExpandButtonClass
         {
             get
             {
-                return (MyTimer.ChildCount > 0) ? "hot" : "not";
+                return MyTimer.ChildCount > 0 ? "expand" : "no-expand";
             }
         }
 
-        public string IsExpandedStyle {
+        private string ToggleIconCode
+        {
+            get
+            {
+                string code = (IsExpanded) ? "remove"
+                    : (MyTimer.ChildCount > 0) ? "add"
+                    : "remove";
+                return code;
+            }
+        }
+
+
+        private string TimerName
+        {
+            get { return MyTimer.TimerName; }
+            set
+            {
+                if (MyTimer.TimerName != value && !string.IsNullOrWhiteSpace(value))
+                {
+                    MyTimer.TimerName = value;
+                    RenameParms parms = new RenameParms();
+                    parms.TimerKey = MyTimer.TimerKey;
+                    parms.NewName = value;
+                    RenameTimer(parms);
+                }
+            }
+        }
+        private string ElapsedTimeString
+        {
+            get
+            {
+                return StringifyTime(ElapsedTime);
+            }
+        }
+
+        protected int ElapsedTime { get; set; }
+        private async Task RenameTimer(RenameParms parms)
+        {
+            var response = await Http.PostAsJsonAsync("RenameTimer", parms);
+            MyTimer = await response.Content.ReadFromJsonAsync<Timer>();
+            StateHasChanged();
+        }
+
+        private bool IsExpanded { get; set; }
+        private string IsExpandedStyle
+        {
             get
             {
                 return (IsExpanded) ? "block" : "none";
             }
         }
 
-        private bool IsExpanded { get; set; }
+        private bool ShowControls { get; set; }
+        private string ShowControlsStyle
+        {
+            get
+            {
+                return (ShowControls) ? "block" : "none";
+            }
+        }
+        private void ToggleShowControls()
+        {
+            ShowControls = !ShowControls;
+        }
 
         private Timer[] MyChildTimers;
 
         private Dictionary<string, Node> MyChildNodes = new Dictionary<string, Node>();
 
-        public string ElapsedTimeString
-        {
-            get
-            {
-                //int et = GetElapsedTime();
-                return Global.StringifyTime(MyTimer.ElapsedTime);
-            }
-        }
 
         private void ToggleExpand()
         {
@@ -60,7 +105,10 @@ namespace TimerToysTwo.Components
 
         protected override async Task OnInitializedAsync()
         {
-            IsExpanded = true;
+            IsExpanded = false;
+            ShowControls = false;
+            ElapsedTime = MyTimer.ElapsedTime;
+
             if (MyTimer.ChildCount > 0)
             {
                 MyChildTimers = await Http.GetFromJsonAsync<Timer[]>(string.Format("GetChildren/{0}", MyTimer.TimerKey));
@@ -70,38 +118,62 @@ namespace TimerToysTwo.Components
 
         public int Tick()
         {
-            int saveTime = MyTimer.ElapsedTime;
+            int saveTime = ElapsedTime;
 
-            if (MyTimer.IsRunning) MyTimer.ElapsedTime++;
+            if (MyTimer.IsRunning) ElapsedTime++;
 
             if (MyChildTimers != null)
             {
-                MyTimer.ElapsedTime = 0;
-                foreach (Timer child in MyChildTimers.OrderBy(c => c.CreationTime))
+                ElapsedTime = 0;
+                foreach (Timer child in MyChildTimers)
                 {
                     bool nodeExists = MyChildNodes.Keys.Contains(child.TimerKey);
-                    if (nodeExists) MyTimer.ElapsedTime += MyChildNodes[child.TimerKey].Tick();
+                    if (nodeExists) ElapsedTime += MyChildNodes[child.TimerKey].Tick();
                 }
             }
 
-            if (MyTimer.ElapsedTime != saveTime) StateHasChanged();
+            if (ElapsedTime != saveTime) StateHasChanged();
 
-            return MyTimer.ElapsedTime;
+            return ElapsedTime;
 
         }
 
-        private void OnSelect()
+        private async Task ToggleTimer()
         {
-            Global.SelectedTimer = MyTimer;
-            OnSelectHandler.InvokeAsync();
+            if (!MyTimer.IsReadOnly)
+            {
+                Timer tmr = await Http.GetFromJsonAsync<Timer>(string.Format("ToggleTimer/{0}", MyTimer.TimerKey));
+                MyTimer = tmr;
+                ElapsedTime = MyTimer.ElapsedTime;
+                StateHasChanged();
+            }
         }
 
-        private void Node_onClick()
+
+        private string StringifyTime(int seconds)
         {
-            IsExpanded = !IsExpanded;
+
+            int sec = seconds;
+            int hrs = sec / 3600;
+
+            sec -= (hrs * 3600);
+
+            int min = sec / 60;
+
+            sec -= (min * 60);
+
+            //if (seconds >= 0 && isCountDownTimer)
+            //{
+            //    if (myTimer.IsRunning) ToggleTimer();
+            //}
+            string result;
+
+            if (hrs > 0) result = string.Format("{0:00}:{1:00}:{2:00}", Math.Abs(hrs), Math.Abs(min), Math.Abs(sec));
+            else if (min > 0) result = string.Format("{0:00}:{1:00}", Math.Abs(min), Math.Abs(sec));
+            else result = string.Format("{0:00}", Math.Abs(sec));
+
+            return result;
+
         }
-
-
-
     }
 }
