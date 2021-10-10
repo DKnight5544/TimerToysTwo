@@ -4,27 +4,43 @@
 <div class="my-timer">
 
     <div class="node-wrapper">
-
-        <span class="material-icons md-18 @ExpandButtonClass"
-              @onclick="ToggleExpand"
-              title="Show Children">
-            @ToggleIconCode
+        <span>
+            <span class="material-icons md-18 @ExpandButtonClass"
+                  @onclick="ToggleExpand"
+                  title="Show Children">
+                 @ToggleIconCode
+            </span>
         </span>
+        <span class="span-spacer"></span>
+        <span class="elapsed-time" title="Show Controls" @onclick="ToggleShowControls">
+            [<ElapsedTimeComponent @ref="ETC" ElapsedTime="@MyTimer.ElapsedTime" />]</span>
 
-        <span class="material-icons md-18 expand"
-              @onclick="ToggleShowControls"
-              title="Show Controls">
-            more_horiz
-        </span>
+        <span><input class="node-name-input" @bind="TimerName" onclick="this.select()" /></span>
 
-        <span class="elapsed-time">[@ElapsedTimeString]</span>
-        <input class="node-name-input" @bind="TimerName" onclick="this.select()" />
     </div>
 
 
-    <div style="margin-left:30px; display: @ShowControlsStyle;">
-        <span class="material-icons md-18"title="Start or Stop Timer">timer</span>
-        <span @onclick="ToggleTimer" >@(MyTimer.IsRunning ? "Stop" : "Start")</span>
+    <div class="controls-container" style="display: @ShowControlsStyle;">
+
+        <table>
+            <tr>
+                <td colspan="3"><button @onclick="ToggleTimer" disabled="@IsDisabled">@(MyTimer.IsRunning ? "STOP" : "START")</button></td>
+            </tr>
+            <tr>
+                <td><button disabled="@IsDisabled" @onclick="() => AdjustTimer(3600)">HOUR+</button></td>
+                <td><button disabled="@IsDisabled" @onclick="() => AdjustTimer(60)">MINUTE+</button></td>
+                <td><button disabled="@IsDisabled" @onclick="() => AdjustTimer(1)">SECOND+</button></td>
+            </tr>
+            <tr>
+                <td><button disabled="@IsDisabled" @onclick="() => AdjustTimer(-3600)">HOUR-</button></td>
+                <td><button disabled="@IsDisabled" @onclick="() => AdjustTimer(-60)">MINUTE-</button></td>
+                <td><button disabled="@IsDisabled" @onclick="() => AdjustTimer(-1)">SECOND-</button></td>
+            </tr>
+            <tr>
+                <td colspan="3"><button @onclick="ResetTimer" disabled="@IsDisabled">RESET</button></td>
+            </tr>
+        </table>
+
     </div>
 
     <div style="margin-left:15px; display: @IsExpandedStyle;">
@@ -37,7 +53,6 @@
             {
                 foreach (Timer child in MyChildTimers.OrderBy(c => c.CreationTime))
                 {
-                    Global.loopCount++;  <div style="position:absolute; top:700px; left:100px">@Global.loopCount</div>
                     <Node @ref="MyChildNodes[child.TimerKey]" MyTimer="@child"></Node>
                 }
             }

@@ -17,13 +17,9 @@ namespace TimerToysTwo.Components
         [Microsoft.AspNetCore.Components.Inject]
         HttpClient Http { get; set; }
 
-        private Timer _myTimer;
 
         [Microsoft.AspNetCore.Components.Parameter]
-        public Timer MyTimer {
-            get { return _myTimer; }
-            set { _myTimer = value; }
-        }
+        public Timer MyTimer { get; set; }
 
         private string ExpandButtonClass
         {
@@ -53,28 +49,24 @@ namespace TimerToysTwo.Components
                 if (MyTimer.TimerName != value && !string.IsNullOrWhiteSpace(value))
                 {
                     MyTimer.TimerName = value;
-                    RenameParms parms = new RenameParms();
+                    RenameParms parms = new();
                     parms.TimerKey = MyTimer.TimerKey;
                     parms.NewName = value;
-                    RenameTimer(parms);
+                    var _1 = RenameTimer(parms);
                 }
             }
         }
-        private string ElapsedTimeString
+
+        private bool IsDisabled
         {
             get
             {
-                return StringifyTime(ElapsedTime);
+                return (MyTimer.IsReadOnly || MyTimer.ChildCount > 0);
             }
         }
 
-        protected int ElapsedTime { get; set; }
-        private async Task RenameTimer(RenameParms parms)
-        {
-            var response = await Http.PostAsJsonAsync("RenameTimer", parms);
-            MyTimer = await response.Content.ReadFromJsonAsync<Timer>();
-            StateHasChanged();
-        }
+        private ElapsedTimeComponent ETC;
+
 
         private bool IsExpanded { get; set; }
         private string IsExpandedStyle
@@ -86,6 +78,7 @@ namespace TimerToysTwo.Components
         }
 
         private bool ShowControls { get; set; }
+
         private string ShowControlsStyle
         {
             get
@@ -93,6 +86,7 @@ namespace TimerToysTwo.Components
                 return (ShowControls) ? "block" : "none";
             }
         }
+
         private void ToggleShowControls()
         {
             ShowControls = !ShowControls;
@@ -100,7 +94,7 @@ namespace TimerToysTwo.Components
 
         private Timer[] MyChildTimers;
 
-        private Dictionary<string, Node> MyChildNodes = new Dictionary<string, Node>();
+        private readonly Dictionary<string, Node> MyChildNodes = new();
 
 
         private void ToggleExpand()
@@ -112,7 +106,7 @@ namespace TimerToysTwo.Components
         {
             IsExpanded = false;
             ShowControls = false;
-            ElapsedTime = MyTimer.ElapsedTime;
+            ETC = new();
 
             if (MyTimer.ChildCount > 0)
             {
@@ -123,22 +117,23 @@ namespace TimerToysTwo.Components
 
         public int Tick()
         {
-            int saveTime = ElapsedTime;
+            int saveTime = ETC.ElapsedTime;
+            int elapsedTime = ETC.ElapsedTime;
 
-            if (MyTimer.IsRunning) ElapsedTime++;
+            if (MyTimer.IsRunning) elapsedTime++;
 
             if (MyChildTimers != null)
             {
-                ElapsedTime = 0;
+                elapsedTime = 0;
                 foreach (Timer child in MyChildTimers)
                 {
-                    ElapsedTime += MyChildNodes[child.TimerKey].Tick();
+                    elapsedTime += MyChildNodes[child.TimerKey].Tick();
                 }
             }
 
-            if (ElapsedTime != saveTime) StateHasChanged();
+            if (elapsedTime != saveTime) ETC.ElapsedTime = elapsedTime;
 
-            return ElapsedTime;
+            return elapsedTime;
 
             //return 0;
 
@@ -146,40 +141,41 @@ namespace TimerToysTwo.Components
 
         private async Task ToggleTimer()
         {
-            if (!MyTimer.IsReadOnly)
+            if (!IsDisabled)
             {
                 Timer tmr = await Http.GetFromJsonAsync<Timer>(string.Format("ToggleTimer/{0}", MyTimer.TimerKey));
                 MyTimer = tmr;
-                ElapsedTime = MyTimer.ElapsedTime;
-                StateHasChanged();
+                ETC.ElapsedTime = MyTimer.ElapsedTime;
             }
         }
-
-
-        private string StringifyTime(int seconds)
+        private async Task RenameTimer(RenameParms parms)
         {
+            var response = await Http.PostAsJsonAsync("RenameTimer", parms);
+            MyTimer = await response.Content.ReadFromJsonAsync<Timer>();
+            StateHasChanged();
+        }
 
-            int sec = seconds;
-            int hrs = sec / 3600;
+        private async Task AdjustTimer(int seconds)
+        {
+            if (!IsDisabled)
+            {
+                AdjustParms parms = new();
+                parms.TimerKey = MyTimer.TimerKey;
+                parms.SecondsOffset = seconds;
+                var response = await Http.PostAsJsonAsync("AdjustTimer", parms);
+                MyTimer = await response.Content.ReadFromJsonAsync<Timer>();
+                ETC.ElapsedTime = MyTimer.ElapsedTime;
+            }
 
-            sec -= (hrs * 3600);
-
-            int min = sec / 60;
-
-            sec -= (min * 60);
-
-            //if (seconds >= 0 && isCountDownTimer)
-            //{
-            //    if (myTimer.IsRunning) ToggleTimer();
-            //}
-            string result;
-
-            if (hrs > 0) result = string.Format("{0:00}:{1:00}:{2:00}", Math.Abs(hrs), Math.Abs(min), Math.Abs(sec));
-            else if (min > 0) result = string.Format("{0:00}:{1:00}", Math.Abs(min), Math.Abs(sec));
-            else result = string.Format("{0:00}", Math.Abs(sec));
-
-            return result;
-
+        }
+        private async Task ResetTimer()
+        {
+            if (!IsDisabled)
+            {
+                Timer tmr = await Http.GetFromJsonAsync<Timer>(string.Format("ResetTimer/{0}", MyTimer.TimerKey));
+                MyTimer = tmr;
+                ETC.ElapsedTime = MyTimer.ElapsedTime;
+            }
         }
     }
 }

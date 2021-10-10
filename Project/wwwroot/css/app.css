@@ -11,39 +11,43 @@ html, body {
 }
 
 .banner {
-    width:100%;
+    width: 100%;
     background-color: maroon;
     color: white;
     font-size: 28px;
     border: none;
     padding: 10px;
-    box-sizing:border-box;
-    margin-bottom:20px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
 }
 
-.loading-message{
-    margin-top:20px;
-    margin-left:20px;
+.loading-message {
+    margin-top: 20px;
+    margin-left: 20px;
 }
 
 .my-timer {
     margin-left: 15px;
     font-size: 20px;
-    line-height:30px;
+    line-height: 30px;
 }
 
-.node-wrapper{
-    height:35px;
-    /*background-color:silver;*/
-    padding-top:3px;
+.node-wrapper {
+    margin-top: 20px;
+}
+
+.node-wrapper span {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+.span-spacer{
+    padding-left:5px;
 }
 
 .expand {
-    background-color: white;
     color: maroon;
     cursor: pointer;
-    display: table-cell;
-    vertical-align: middle;
     border: 1px solid maroon;
 }
 
@@ -55,26 +59,74 @@ html, body {
 .no-expand {
     background-color: white;
     color: silver;
-    display: table-cell;
-    vertical-align: middle;
     border: 1px solid silver;
 }
 
 .elapsed-time {
     background-color: white;
     color: maroon;
+    padding-left: 5px;
+    padding-right: 5px;
+    cursor: pointer;
 }
 
+    .elapsed-time:hover {
+        background-color: maroon;
+        color: white;
+    }
+
 .node-name-input {
+    /*display: inline-block;*/
+    padding: 5px;
     color: maroon;
     border: none;
     width: 500px;
     font-size: 18px;
 }
 
-.node-name-input:focus{
-    padding:5px;
+    .node-name-input:focus {
+    }
+
+    .node-name-input:hover {
+        background-color: maroon;
+        color: white;
+    }
+
+.controls-container {
+    margin-left: 35px;
+    color: maroon;
 }
+
+.controls-container table{
+    border-collapse:collapse;
+}
+
+    .controls-container td {
+        text-align: center;
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+td button {
+    cursor: pointer;
+    border: 1px solid maroon;
+    color: maroon;
+    background-color: white;
+    width: 100%;
+    padding: 5px;
+}
+
+    td button:hover {
+        font-weight: bold;
+        color: white;
+        background-color: maroon;
+    }
+
+    td button:disabled {
+        color: silver;
+        background-color: whitesmoke;
+        border:1px solid silver;
+    }
 
 /* Material Icons */
 .material-icons.md-18 {
